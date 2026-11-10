@@ -1,0 +1,25 @@
+name: Build Game ELF
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Compile Game Binary
+        run: |
+          gcc -O2 src/main.c src/engine/memory.c src/engine/input.c src/engine/camera.c src/engine/world_stream.c src/render/renderer.c src/physics/collision.c src/gameplay/match.c src/gameplay/combat.c src/gameplay/vehicles.c src/ai/bot_ai.c src/network/lan_net.c src/audio/sound.c src/ui/hud.c -o SUDAN_BATTLE.ELF -lm -Wall
+          ls -la SUDAN_BATTLE.ELF
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SUDAN_BATTLE_PS2_ELF
+          path: SUDAN_BATTLE.ELF
