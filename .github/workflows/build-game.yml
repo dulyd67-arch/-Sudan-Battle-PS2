@@ -1,4 +1,4 @@
-name: Build Game ELF
+name: Build PS2 ELF
 
 on:
   push:
@@ -8,15 +8,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: ps2dev/ps2dev:latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Compile Game Binary
+      - name: Build PS2 Binary
+        shell: bash
         run: |
-          gcc -O2 src/main.c src/engine/memory.c src/engine/input.c src/engine/camera.c src/engine/world_stream.c src/render/renderer.c src/physics/collision.c src/gameplay/match.c src/gameplay/combat.c src/gameplay/vehicles.c src/ai/bot_ai.c src/network/lan_net.c src/audio/sound.c src/ui/hud.c -o SUDAN_BATTLE.ELF -lm -Wall
-          ls -la SUDAN_BATTLE.ELF
+          export PS2DEV=/usr/local/ps2dev
+          export PS2SDK=$PS2DEV/ps2sdk
+          export PATH=$PATH:$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin
+          
+          make clean
+          make all
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
