@@ -3,6 +3,8 @@ name: Build PS2 ELF
 on:
   push:
     branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
   workflow_dispatch:
 
 jobs:
@@ -16,19 +18,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup PS2SDK Env
-        shell: bash
+        shell: sh
         run: |
-          echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
-          echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
-          echo "/usr/local/ps2dev/bin" >> $GITHUB_PATH
-          echo "/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_PATH
+          echo "PS2DEV=/usr/local/ps2dev" >> "$GITHUB_ENV"
+          echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> "$GITHUB_ENV"
+          echo "/usr/local/ps2dev/bin" >> "$GITHUB_PATH"
+          echo "/usr/local/ps2dev/ps2sdk/bin" >> "$GITHUB_PATH"
+
+      - name: Verify PS2SDK installation
+        shell: sh
+        run: |
+          test -f "$PS2SDK/samples/Makefile.pref"
+          test -f "$PS2SDK/samples/Makefile.eeglobal"
+          command -v make
+          command -v ee-gcc
 
       - name: Build with PS2SDK Makefile
-        shell: bash
+        shell: sh
         run: |
-          make clean || true
+          make clean
           make all
-          ls -l SUDAN_BATTLE.ELF
+          test -s SUDAN_BATTLE.ELF
 
       - name: Upload ELF Artifact
         uses: actions/upload-artifact@v4

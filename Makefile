@@ -14,10 +14,12 @@ EE_OBJS = src/main.o \
           src/audio/sound.o \
           src/ui/hud.o
 
-EE_INCS = -I./src
-EE_CFLAGS = -O2 -Wall -Wno-unused-variable -DPS2_TARGET
-EE_LDFLAGS = -L$(PS2SDK)/ee/lib
-EE_LIBS = -ldraw -lgraph -lmath3d -lpacket -ldma -lpad -lmc -laudsrv -lnetman -lps2ip -lc -lm
+EE_INCS += -I./src
+EE_CFLAGS += -O2 -Wall -Wno-unused-variable -DPS2_TARGET
+EE_LDFLAGS += -L$(PS2SDK)/ee/lib
+EE_LIBS += -ldraw -lgraph -lmath3d -lpacket -ldma -lpad -lmc -laudsrv -lnetman -lps2ip -lc -lm
+
+.PHONY: all clean
 
 all: $(EE_BIN)
 
