@@ -15,17 +15,12 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Build PS2 Binary
-        shell: bash
+      - name: Build with PS2SDK Makefile
         run: |
-          export PS2DEV=/usr/local/ps2dev
-          export PS2SDK=$PS2DEV/ps2sdk
-          export PATH=$PATH:$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin
-          
           make clean
           make all
 
-      - name: Upload Artifact
+      - name: Upload ELF Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SUDAN_BATTLE_PS2_ELF
