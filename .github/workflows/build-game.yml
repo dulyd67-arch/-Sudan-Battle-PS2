@@ -15,30 +15,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Compile PS2 Binary Direct with EE-GCC
+      - name: Setup PS2SDK Env
+        shell: bash
         run: |
-          mkdir -p build
-          mips64r5900el-ps2-elf-gcc -O2 -G0 -I./src \
-            src/main.c \
-            src/engine/memory.c \
-            src/engine/input.c \
-            src/engine/camera.c \
-            src/engine/world_stream.c \
-            src/render/renderer.c \
-            src/physics/collision.c \
-            src/gameplay/match.c \
-            src/gameplay/combat.c \
-            src/gameplay/vehicles.c \
-            src/ai/bot_ai.c \
-            src/network/lan_net.c \
-            src/audio/sound.c \
-            src/ui/hud.c \
-            -o SUDAN_BATTLE.ELF -lm
-          
-          ls -la SUDAN_BATTLE.ELF
+          echo "PS2DEV=/usr/local/ps2dev" >> $GITHUB_ENV
+          echo "PS2SDK=/usr/local/ps2dev/ps2sdk" >> $GITHUB_ENV
+          echo "/usr/local/ps2dev/bin" >> $GITHUB_PATH
+          echo "/usr/local/ps2dev/ps2sdk/bin" >> $GITHUB_PATH
+
+      - name: Build with PS2SDK Makefile
+        shell: bash
+        run: |
+          make clean || true
+          make all
+          ls -l SUDAN_BATTLE.ELF
 
       - name: Upload ELF Artifact
         uses: actions/upload-artifact@v4
         with:
           name: SUDAN_BATTLE_PS2_ELF
           path: SUDAN_BATTLE.ELF
+          if-no-files-found: error
