@@ -1,20 +1,33 @@
 name: Build PS2 ELF
+
 on:
   push:
     branches: [ "main", "master" ]
   workflow_dispatch:
+
 jobs:
   build-elf:
     runs-on: ubuntu-latest
     container:
       image: ps2dev/ps2dev:latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
       - name: Compile SUDAN_BATTLE.ELF
+        shell: bash
         run: |
+          export PS2DEV=/usr/local/ps2dev
+          export PS2SDK=$PS2DEV/ps2sdk
           export PATH=$PATH:$PS2DEV/bin:$PS2DEV/ee/bin:$PS2DEV/iop/bin:$PS2DEV/dvp/bin:$PS2SDK/bin
-          make clean && make all
+          
+          echo "Checking PS2SDK path..."
+          ls -la $PS2SDK || true
+          
+          make clean
+          make all
+
       - name: Upload Bootable PS2 ELF Artifact
         uses: actions/upload-artifact@v4
         with:
