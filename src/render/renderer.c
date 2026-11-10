@@ -29,8 +29,30 @@ static qword_t* draw_box(qword_t* q, Vec3 center, float r, float h, const ThirdP
     if (!project_vertex(center, cam, &sx1, &sy1, &sz1) || !project_vertex(top, cam, &sx2, &sy2, &sz2)) return q;
     int half_w = (int)((sy1 - sy2) * (r / (h + 0.01f)));
     if (half_w < 2) half_w = 2;
-    rect_t rc = {{sx1 - half_w, sy2, (u16)sz1}, {sx1 + half_w, sy1}, {red, g, b, 0x80, 1.0f}};
-    return draw_rect_filled(q, 0, &rc);
+    /* Distance fog and simple layered shading */
+    float depth = (65535.0f - (float)sz1) / 140.0f;
+    float fog = (depth - 75.0f) / 280.0f;
+    if (fog < 0.0f) fog = 0.0f;
+    if (fog > 0.78f) fog = 0.78f;
+
+    int rr = (int)(red * (1.0f - fog) + 212.0f * fog);
+    int gg = (int)(g * (1.0f - fog) + 178.0f * fog);
+    int bb = (int)(b * (1.0f - fog) + 125.0f * fog);
+
+    rect_t shadow = {
+        {sx1 - half_w + 3, sy2 + 3, (u16)sz1},
+        {sx1 + half_w + 3, sy1 + 3},
+        {(u8)(rr * 0.55f), (u8)(gg * 0.55f),
+         (u8)(bb * 0.55f), 0x80, 1.0f}
+    };
+    q = draw_rect_filled(q, 0, &shadow);
+
+    rect_t body = {
+        {sx1 - half_w, sy2, (u16)sz1},
+        {sx1 + half_w, sy1},
+        {(u8)rr, (u8)gg, (u8)bb, 0x80, 1.0f}
+    };
+    return draw_rect_filled(q, 0, &body);
 }
 void renderer_init(void) {
     dma_channel_initialize(DMA_CHANNEL_GIF, NULL, 0);
